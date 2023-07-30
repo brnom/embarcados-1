@@ -52,5 +52,10 @@ Mkfile.old
 dkms.conf
 
 #rdm
-Project\ Backups/*
+**/Project\ Backups/*
+**/Listings/*
+**/Objects/*
 *.workspace
+*.uvgui*
+*.uvopt
+*.uvproj
