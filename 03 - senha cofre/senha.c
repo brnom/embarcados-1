@@ -77,7 +77,7 @@ void LCD_Init(void) {
   LCD_Command(0x80);
 }
 
-unsigned int correct_password = 011064; // Correct password in binary
+unsigned int correct_password = 011064; // Correct password in octal (1234 on keypad)
 
 char get_key() {
   int i;
