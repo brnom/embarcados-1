@@ -5,35 +5,35 @@ org 0000h
 main:
 	clr RS
 
-         
+
 	mov TMOD,#20H
-	mov TH1,#0F3H  
-	mov SCON,#50H 
-	setb TR1  
+	mov TH1,#0F3H
+	mov SCON,#50H
+	setb TR1
 	Mov DPTR,#LUT
-	
+
 	call funcSet
 	call ConfigDisplay
 	call LeituraTeclado
-Back:		 
+Back:
 	clr A
     movc A,@A+DPTR
 	call Enviar
 	inc DPTR
 	jnz Back
 
-GetData:	 
+GetData:
 	call GetInput
 	mov P1,A
-    
-Enviar: 
+
+Enviar:
 	mov SBUF,A
-Here:   	 
-	jnb TI,Here  
-	clr TI		
+Here:
+	jnb TI,Here
+	clr TI
 	Ret
-          
-GetInput: 
+
+GetInput:
 	jnb RI,GetInput
     mov A,SBUF
 	call EnviaCaractere
@@ -139,7 +139,7 @@ EnviaCaractere:
         Ret
 
 Delay:
-        Mov R0, #50
+        Mov R0, #60
         Djnz R0, $
         Ret
 ;------------------------
@@ -148,6 +148,6 @@ Delay:
 Stop:
         Jmp $
           Org 0200h
-  
+
 LUT:   	 DB 'D','i','g','i','t','e', 0
   end
