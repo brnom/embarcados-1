@@ -19,7 +19,7 @@ void LCD_Command (char cmnd) {
 	delay(1);
 	en=0;
 	delay(2);
-	
+
 	LCD_Port = ((LCD_Port & 0x0F) | (cmnd << 4));
 	en=1;
 	delay(1);
@@ -35,7 +35,7 @@ void LCD_Char (char char_data) {
 	delay(1);
 	en=0;
 	delay(2);
-	
+
 	LCD_Port = (LCD_Port & 0x0F) | (char_data << 4);
 	en=1;
 	delay(1);
@@ -73,16 +73,21 @@ void main() {
 	int shift, i;
 
 	LCD_Init();
-	LCD_String("mensagem teste 1");
-	LCD_Command(0xC0); // vai p segunda linha
-	LCD_String_xy(1,0,"msg teste 2");
+	LCD_String("Sistemas");
+  // Jumps to 2nd line
+	LCD_Command(0xC0);
+	LCD_String_xy(1,0,"Embarcados");
 
 	shift = 5;
 
 	while(1){
 		for (i=0; i<shift; i++) {
-			LCD_Command(0x18);
+			// Scroll to the left
+      LCD_Command(0x18);
+
+      // Scroll to the right
 			// LCD_Command(0x1C);
+
 			delay(3);
 		}
 	}
