@@ -13,12 +13,12 @@ main:
 	Mov DPTR,#LUT
 	
 	call funcSet
-	call dispCon
-	call entryMode
+	call ConfigDisplay
+	call LeituraTeclado
 Back:		 
 	clr A
     movc A,@A+DPTR
-	call Transmit
+	call Enviar
 	inc DPTR
 	jnz Back
 
@@ -26,7 +26,7 @@ GetData:
 	call GetInput
 	mov P1,A
     
-Transmit: 
+Enviar: 
 	mov SBUF,A
 Here:   	 
 	jnb TI,Here  
@@ -36,39 +36,39 @@ Here:
 GetInput: 
 	jnb RI,GetInput
     mov A,SBUF
-	call SendChar
+	call EnviaCaractere
     clr RI
     ret
-;-----------lcd-------------
+;
   FuncSet:
         Clr  P1.7
         Clr  P1.6
         SetB P1.5
         Clr  P1.4
-        Call Pulse
+        Call Pulso
         Call Delay
-        Call Pulse
+        Call Pulso
 
         SetB P1.7
         Clr  P1.6
         Clr  P1.5
         Clr  P1.4
-        Call Pulse
+        Call Pulso
         Call Delay
         Ret
 
-DispCon:
+ConfigDisplay:
         Clr P1.7
         Clr P1.6
         Clr P1.5
         Clr P1.4
-        Call Pulse
+        Call Pulso
 
         SetB P1.7
         SetB P1.6
         SetB P1.5
         SetB P1.4
-        Call Pulse
+        Call Pulso
         Call Delay
         Ret
 
@@ -78,40 +78,40 @@ Home:
         SetB P1.6
         Clr P1.5
         Clr P1.4
-        Call Pulse
+        Call Pulso
 
         Clr P1.7
         Clr P1.6
         Clr P1.5
         Clr P1.4
-        Call Pulse
+        Call Pulso
         Call Delay
         Ret
 
 
-EntryMode:
+LeituraTeclado:
         Clr P1.7
         Clr P1.6
         Clr P1.5
         Clr P1.4
-        Call Pulse
+        Call Pulso
 
         Clr  P1.7
         SetB P1.6
         SetB P1.5
         Clr  P1.4
 
-        Call Pulse
+        Call Pulso
         Call Delay
         Ret
 
-Pulse:
+Pulso:
         SetB E
         Clr  E
         Ret
 
 
-SendChar:
+EnviaCaractere:
         Mov C, ACC.7
         Mov P1.7, C
         Mov C, ACC.6
@@ -121,7 +121,7 @@ SendChar:
         Mov C, ACC.4
         Mov P1.4, C
 
-        Call Pulse
+        Call Pulso
 
         Mov C, ACC.3
         Mov P1.7, C
@@ -132,7 +132,7 @@ SendChar:
         Mov C, ACC.0
         Mov P1.4, C
 
-        Call Pulse
+        Call Pulso
         Call Delay
 
         Mov R1, #55h
