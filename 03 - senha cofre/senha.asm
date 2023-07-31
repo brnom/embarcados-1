@@ -179,7 +179,7 @@ EnviaCaractere:
         Ret
  
 Delay:
-        Mov R0, #50
+        Mov R0, #40
         Djnz R0, $
         Ret
  
