@@ -18,7 +18,7 @@ int cacti_pos_2 = 0xcc;
 int trex_pos = 0xc0;
 int should_continue = 1;
 int score = 0;
-int _delay;
+int tmp_delay;
 
 void delay(unsigned int t) {
 	unsigned int i,j;
@@ -152,8 +152,8 @@ void main(void) {
 				delay(50);
 			} else {
 			  // MUDAR ESTRUTURA
-				_delay = 1000 - score;
-				delay(_delay);
+				tmp_delay = 1000 - score;
+				delay(tmp_delay);
 			}
 
       // MUDAR ESTRUTURA - usar switch
