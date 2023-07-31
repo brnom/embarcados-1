@@ -7,7 +7,7 @@ main:
 
          
 	mov TMOD,#20H
-	mov TH1,#0FCH  
+	mov TH1,#0F3H  
 	mov SCON,#50H 
 	setb TR1  
 	Mov DPTR,#LUT
