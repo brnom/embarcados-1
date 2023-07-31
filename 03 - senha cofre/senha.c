@@ -77,18 +77,16 @@ void LCD_Init(void) {
   LCD_Command(0x80);
 }
 
-unsigned int correct_password = 011064; // Correct password in octal (1234 on keypad)
+unsigned int password = 0114166; // Password in octal (9876 on keypad)
 
-char get_key() {
+char get_input() {
   int i;
-  char keys[4][3] = {
-      {'1', '2', '3'},
-      {'4', '5', '6'},
-      {'7', '8', '9'},
-      {'*', '0', '#'}};
+  char keypad[4][3] = {{'1', '2', '3'},
+                       {'4', '5', '6'},
+                       {'7', '8', '9'},
+                       {'*', '0', '#'}};
 
   while (1) {
-    // Loop through rows
     for (i = 0; i < 4; i++) {
       switch (i){
         case 0:
@@ -109,51 +107,56 @@ char get_key() {
           break;
       }
 
-      // Check each column
       if (C1 == 0) {
-        while (C1 == 0); // Wait for key release
-          return keys[i][0];
+        while (C1 == 0);
+          return keypad[i][0];
       }
       if (C2 == 0) {
-        while (C2 == 0); // Wait for key release
-          return keys[i][1];
+        while (C2 == 0);
+          return keypad[i][1];
       }
-      if (C3 == 0)
-      {
-        while (C3 == 0)
-          ; // Wait for key release
-        return keys[i][2];
+      if (C3 == 0) {
+        while (C3 == 0);
+          return keypad[i][2];
       }
     }
   }
 }
 
 void main() {
-  unsigned int entered_password = 0;
   int i = 0;
-  char key = 0;
+  char input = 0;
+  unsigned int typed_password = 0;
 
   LCD_Init();
-  LCD_String("Enter #s:");
+  LCD_String("Type digits:");
 
-  while (key != '*') {
-    key = get_key(); // Wait for the start character
+  // Espera o caracter # para começar a digitar a senha
+  while (input != '*') {
+    input = get_input();
   }
 
   for (i = 0; i < 4; i++) {
-    key = get_key();
-    if (key == '#') {
-      break; // If the confirm character is pressed, break out of the loop
+    input = get_input();
+
+    // Se o caracter for #, sai do loop
+    if (input == '#') {
+      break;
     }
-    entered_password <<= 4;          // Shift the bits left by 4 to make space for the new key
-    entered_password |= (key - '0'); // Subtract '0' to convert ASCII to integer, then OR it into entered_password
+
+    // Desloca os bits para a esquerda e faz um OR com o novo valor
+    typed_password <<= 4;
+    // Subtrai '0' para converter ASCII para inteiro, depois faz um OR com typed_password
+    typed_password |= (input - '0');
+    // Mostra um asterisco no LCD no lugar da tecla digitada
     LCD_Char('*');
   }
-  if (entered_password == correct_password) {
-    LCD_Command(0xC0);
+
+  LCD_Command(0xC0);
+
+  if (typed_password == password) {
     LCD_String_xy(1, 0, "Access Granted");
   } else {
-    LCD_Command(0xC0);
     LCD_String_xy(1, 0, "Access Denied");
   }
 
