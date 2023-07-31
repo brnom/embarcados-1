@@ -1,5 +1,6 @@
 #include <reg51.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // Ports
@@ -7,22 +8,24 @@ sbit rs = P1^3;
 sbit e = P1^2;
 sbit botao = P1^1;
 
-// Global Variables
-char start_txt[7] = "Start!";
-char lost_text[5] = "Lost!";
-char record_txt[13] = "Uhul Record!";
-char score_txt[8] = "Score: ";
+// Global
+char txt_inicio[7] = "START ";
+char txt_final[15] = "TENTE NOVAMENTE";
+char txt_recorde[17] = "NOVO RECORDE ";
+char txt_score[12] = "SCORE: ";
 char score_str[4];
-int cacti_pos_1 = 0Xc4;
-int cacti_pos_2 = 0xcc;
-int trex_pos = 0xc0;
-int should_continue = 1;
+int pos_policia_1 = 0Xc4;
+int pos_policia_2 = 0xcc;
+int pos_nuvem = 0x88;
+int pos_punk = 0xc0;
+int valid = 1;
 int score = 0;
-int tmp_delay;
+int atraso;
 
+// Functions
 void delay(unsigned int t) {
 	unsigned int i,j;
-
+	
 	for(i=0;i<t;i++)
 	   for(j=0;j<127;j++);
 }
@@ -30,22 +33,21 @@ void delay(unsigned int t) {
 void cmd(unsigned char a) {
 	unsigned char x;
 	x=a&0xf0;
-
+		
 	P1=x;
 	rs=0;
-	//rw=0;
 	e=1;
 	delay(1);
 	e=0;
-
+		
 	x=(a<<4)&0xf0;
-
+		
 	P1=x;
 	rs=0;
-	//rw=0;
 	e=1;
 	delay(1);
 	e=0;
+	
 }
 
 void dat(unsigned char a) {
@@ -54,133 +56,162 @@ void dat(unsigned char a) {
 
 	P1=x;
 	rs=1;
-	//rw=0;
 	e=1;
 	delay(1);
 	e=0;
-
+		
 	x=(a<<4)&0xf0;
-
+		
 	P1=x;
 	rs=1;
-	//rw=0;
 	e=1;
 	delay(1);
 	e=0;
 }
 
-void escreve(char* m, int position, int time) {
+void escreve(char* m, int pos, int time) {
 	unsigned int j;
 	cmd(0x01);
-	cmd(position);
-
-	for(j = 0;m[j]!='\0';j++) {
+	cmd(pos);
+	
+	for(j = 0;m[j]!='\0';j++){
 		dat(m[j]);
 	}
-
+	
 	delay(time);
 }
 
-void handle_button_press(void) {
-	if(botao == 0) {
-			trex_pos = 0xc0;
-	} else {
-			trex_pos = 0x80;
+void buttonPush(void) {
+	if(botao == 0){
+			pos_punk = 0xc0;
+	}
+	else{
+			pos_punk = 0x80;
 	}
 }
 
 void store() {
-  // dino*
-  cmd(64);
-  dat(130);
-  dat(10);
-  dat(63);
-  dat(58);
-  dat(63);
-  dat(60);
-  dat(59);
-  dat(59);
 
-  // cacti*
-  cmd(72);
-  dat(150);
-  dat(112);
-  dat(63);
-  dat(63);
-  dat(63);
-  dat(42);
-  dat(42);
-  dat(63);
+	  // PUNK
+    cmd(64);          
+    dat(130);
+    dat(10);
+    dat(63);
+    dat(58);
+    dat(63);
+    dat(60);
+    dat(59);
+    dat(59);
+		
+		// POLÍCIA
+    cmd(72);
+    dat(150);
+    dat(112);
+    dat(63);
+    dat(63);
+    dat(63);
+    dat(42);
+    dat(42);
+    dat(63);
+		
+		// NUVEM
+    cmd(80);
+    dat(0);
+    dat(4);
+    dat(10);
+    dat(18);
+    dat(17);
+    dat(17);
+    dat(63);
+    dat(0);
 }
 
 void main(void) {
+	
 	cmd(0x28);
 	cmd(0x01);
 	cmd(0x0c);
 	cmd(0x80);
 	cmd(0x06);
 	store();
-
-	escreve(start_txt, 0x82, 1000);
-
-	while(should_continue == 1) {
-		handle_button_press();
-
+	
+	escreve(txt_inicio,0x82,1000);
+	
+	while(valid == 1){
+		buttonPush();
+		
 		cmd(0x01);
-		cmd(trex_pos);
+		cmd(pos_punk);
 		dat(0);
-		cmd(cacti_pos_1);
+		cmd(pos_policia_1);
 		dat(1);
-		cmd(cacti_pos_2);
+		cmd(pos_policia_2);
 		dat(1);
-
-		cacti_pos_1--;
-		cacti_pos_2--;
-
-		if(cacti_pos_1 == trex_pos || cacti_pos_2 == trex_pos) {
-			should_continue = 0;
-		} else {
-			if(cacti_pos_1 == 0xc0) {
-				cacti_pos_1 = 0Xcf;
+		cmd(pos_nuvem);
+		dat(2);
+		
+				
+		pos_policia_1--;
+		pos_policia_2--;
+		pos_nuvem--;
+		
+		if(pos_policia_1 == pos_punk || pos_policia_2 == pos_punk){
+			valid = 0;
+		}
+		
+		else{
+			
+			if(pos_punk == 0x80) {
+			score = score - 15;
 			}
-			if(cacti_pos_2 == 0xc0) {
-				cacti_pos_2 = 0Xcf;
+			
+			if(pos_policia_1 == 0xc0) {
+				delay(1);
+				pos_policia_1 = 0xcf - rand() % 6;
 			}
-
-			if(score > 950) {
-			  // MUDAR ESTRUTURA
-				delay(50);
-			} else {
-			  // MUDAR ESTRUTURA
-				tmp_delay = 1000 - score;
-				delay(tmp_delay);
+			
+			if(pos_policia_2 == 0xc0) {
+				delay(1);
+				pos_policia_2 = 0xcf - rand() % 6;
 			}
-
-      // MUDAR ESTRUTURA - usar switch
-			if(score < 100) {
-				score = score + 25;
-			} else if((score >= 100) && (score < 400)) {
+			
+			if(pos_nuvem == 0x80) {
+				delay(1);
+				pos_nuvem = 0x8f - rand() % 6;
+			}		
+			
+			if(score > 200 && score < 500) {
+				delay(150);
 				score = score + 15;
-			} else if(score >= 400 && score <800) {
-				score = score + 10;
-			} else if(score>=800) {
-				score = score + 5;
+			}
+			
+			if(score <= 200) {
+				score = score + 15;
+				delay(300);
 			}
 
-			if(score == 2500) {
-				should_continue = 0;
+			if(score >= 500 && score < 950) {
+				delay(100);
+				score = score + 15;
+			}
+			
+			if(score >= 950){
+				valid = 0;
 			}
 		}
 	}
-
+	
+	
 	sprintf(score_str,"%d",score);
-
-	strcat(score_txt, score_str);
-
-	if(score == 2500) {
-		escreve(record_txt,0x80,5000);
-  } else {
-		escreve(lost_text,0x84,2500);
-		escreve(score_txt,0x82,2500);
+	
+	strcat(txt_score, score_str);
+	
+	if(score >= 950){
+		escreve(txt_recorde,0x80,5000);
+		escreve(txt_score,0x82,2500);
+	}
+	else{
+		escreve(txt_final,0x81,2500);
+		escreve(txt_score,0x82,2500);
 	}
 }
